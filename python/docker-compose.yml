@@ -1,0 +1,23 @@
+version: '3.8'
+
+
+services:
+
+  python:
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - ./activities.py:/py/activities.py
+      - ./run_worker.py:/py/run_worker.py
+      - ./run_workflow.py:/py/run_workflow.py
+      - ./workflow.py:/py/workflow.py
+    container_name: python
+    env_file: .env
+    entrypoint: ["./entrypoint.sh"]
+    restart: always
+
+
+
+
+
