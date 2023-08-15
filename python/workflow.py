@@ -2,9 +2,8 @@ from temporalio import workflow
 from activities import *
 from datetime import timedelta
 from dataclasses import dataclass
-import time
 import asyncio
-import os
+
 
 @dataclass
 class Data:
@@ -39,7 +38,7 @@ class PizzahutWorkflow:
                 start_to_close_timeout=timedelta(seconds=60)
             )
 
-            log(f"Pedidos {order}")
+            self.orders.append(order)
 
             order = await workflow.execute_activity(
                 preparing_order,
@@ -47,7 +46,9 @@ class PizzahutWorkflow:
                 start_to_close_timeout=timedelta(seconds=60)
             )
 
-            log(f"Pedidos {order}")
+            for i in self.orders:
+                if i['order'] == order['order']:
+                    i['status'] = order['status']
 
             order = await workflow.execute_activity(
                 leave_for_delivery,
@@ -55,8 +56,11 @@ class PizzahutWorkflow:
                 start_to_close_timeout=timedelta(seconds=60)
             )
 
+            for i in self.orders:
+                if i['order'] == order['order']:
+                    i['status'] = order['status']
+
             log(f"Pedidos {order}")
-            self.orders.append(order)
 
             self.order = Data()
             self._avarage_update.clear()

@@ -6,7 +6,6 @@ import os
 
 
 
-
 # Log config
 logger = logging.getLogger('pizzahut')
 logger.setLevel(logging.DEBUG)
