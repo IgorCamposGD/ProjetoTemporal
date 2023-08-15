@@ -9,6 +9,8 @@ OBS: ajustar o .env como no exemplo env_example
 Executando o projeto:
 Para executar o projeto, siga os seguintes passos:
 
+OBS: Para funcionar voce precisa ter um temporal server. Recomendamos usar o: https://github.com/temporalio/temporalite e seguir o passo a passo do mesmo para configura-lo. 
+
 **1 - Clone o repositório para o seu ambiente local:**
 
 ```bash
@@ -20,11 +22,12 @@ git clone https://github.com/IgorCamposGD/ProjetoTemporal
 cd ProjetoTemporal
 ```
 
-**3 - Clone o repositório temporalite que será o temporal server:**
+**3 - Após voce subir o temporal server, der o comando abaixo para criar o seu namespace antes de subir a docker do sistema:**
 
 ```bash
-git clone https://github.com/temporalio/temporalite
+tctl --namespace your-namespace namespace register
 ```
+OBS: Voce precisará de um client para passar os comandos para o temporal server caso voce esteja usando o temporal lite que foi recomendado acima. Recomandos usar o https://hub.docker.com/r/temporalio/admin-tools. 
 
 **4 - Em seguida, você pode executar o comando:**
 
@@ -48,22 +51,24 @@ Após validar que o seu worflow de longa duração está rodando no temporal ser
 
 OBS1: O sabor só pode ser um dos sitados no comando, caso esteja vazio ou diferente será retornado erro.
 
-OBS2: No comando alterar, ip do temporal server, NOME, ENDEREÇO e SABOR. Caso tenha alterado os valores de workflow_id e o namespace alterar tbm no comando.
+OBS2: Caso tenha alterado os valores de workflow_id e o namespace alterar tbm no comando.
 
 ```bash
-docker run --rm -it --entrypoint tctl --network host --env TEMPORAL_CLI_ADDRESS="ipdotemporalserver":7233 temporalio/admin-tools:1.14.0 --namespace pizzahut workflow signal --workflow_id "PizzahutWorkflow-workflow" --name "new_order" --input '{\"name\": \"NOME\" , \"address\": \"ENDEREÇO\", \"flavor\": \"Calabresa,Frango ou Chocolate\"}'
+tctl --namespace pizzahut workflow signal --workflow_id "PizzahutWorkflow-workflow" --name "new_order" --input '{\"name\": \"NOME\" , \"address\": \"ENDEREÇO\", \"flavor\": \"Calabresa,Frango ou Chocolate\"}'
 ```
+
+OBS: Se voce tiver no sistema operacional Linux retire as barras antes das aspas.
 
 **7 - Após realizar o pedido voce pode consultar o status do pedido com o comando:**
 
-OBS: no input colocar o ID gerado na primeira ativiade. Voce pode pegar o id no temporal server.
+OBS: no input colocar o ID gerado na primeira ativiade, voce pode pegar o id no temporal server ou no log docker, com o comando make logs.
 
 ```bash
-docker run --rm -it --entrypoint tctl --network host --env TEMPORAL_CLI_ADDRESS="ipdotemporalserver":7233 temporalio/admin-tools:1.14.0 --namespace pizzahut workflow query --workflow_id PizzahutWorkflow-workflow --query_type "get_order_status" --input 1111
+tctl --namespace pizzahut workflow query --workflow_id PizzahutWorkflow-workflow --query_type "get_order_status" --input 1111
 ```
 
 **7 - Após chegar no status "Out_of_delivery" ele só vai ficar como "delivery" caso seja encaminhado um sinal:**
 
 ```bash
-docker run --rm -it --entrypoint tctl --network host --env TEMPORAL_CLI_ADDRESS="ipdotemporalserver":7233 temporalio/admin-tools:1.14.0 --namespace pizzahut workflow signal --workflow_id "PizzahutWorkflow-workflow" --name "confirm_delivery" --input 1111
+tctl --namespace pizzahut workflow signal --workflow_id "PizzahutWorkflow-workflow" --name "confirm_delivery" --input 1111
 ```

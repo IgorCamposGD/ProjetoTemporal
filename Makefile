@@ -1,14 +1,14 @@
 up:
-    cd python ; docker-compose up -d --scale python=3
+	docker-compose up -d --scale python=3
 
 down:
-	cd python ; docker-compose down
+	docker-compose down
 
 restart:
-	cd python ; docker-compose restart
+	docker-compose restart
 
 build:
-	cd python ; docker-compose up --build -d
+	docker-compose up --build -d
 
 logs:
-	cd python ; docker-compose logs -f --tail=100
+	docker-compose logs -f --tail=100
