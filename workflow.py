@@ -18,9 +18,6 @@ class PizzahutWorkflow:
         self.orders          = []
         self.order           = Data()
 
-    async def status(self):
-        log(f"Status atual: {self.statusPedido.order}")
-
     @workflow.run
     async def run(self) -> None:
         while True:
@@ -60,7 +57,7 @@ class PizzahutWorkflow:
                 if i['order'] == order['order']:
                     i['status'] = order['status']
 
-            log(f"Pedidos {order}")
+            log(f"thanks for the request {order}")
 
             self.order = Data()
             self._avarage_update.clear()
@@ -75,10 +72,10 @@ class PizzahutWorkflow:
                 self.order.name = data.name
                 self.order.address = data.address
             else:
-                log("A variável NAME ou ADDRESS não podem ser vazia")
+                log("NAME or ADDRESS variable cannot be empty")
 
-            if data.flavor not in {'Frango','Calabresa','Chocolate'}:
-                log("A variável FLAVOR deve ter um dos valores: 'Frango','Calabresa','Chocolate'")
+            if data.flavor not in {'Chicken','Pepperoni','Chocolate'}:
+                log("The FLAVOR variable must have one of the values: 'Chicken','Pepperoni','Chocolate'")
             else:
                 self.order.flavor = data.flavor
         

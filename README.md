@@ -20,13 +20,23 @@ git clone https://github.com/IgorCamposGD/ProjetoTemporal
 cd ProjetoTemporal
 ```
 
-**3 - Em seguida, você pode executar o comando:**
+**3 - Clone o repositório temporalite que será o temporal server:**
 
 ```bash
-make pizzaria-up
+git clone https://github.com/temporalio/temporalite
 ```
 
-**4 - acessar o temporal com seu ip local na porta 8233:**
+**4 - Em seguida, você pode executar o comando:**
+
+```bash
+make build
+```
+
+```bash
+make up
+```
+
+**5 - acessar o temporal com seu ip local na porta 8233:**
 
 ```bash
 http://seuip:8233
@@ -34,7 +44,7 @@ http://seuip:8233
 
 Após validar que o seu worflow de longa duração está rodando no temporal server, agora voce pode realizar o pedido da pizza e ir monitorando os status.
 
-**5 - realizar um pedido:**
+**6 - realizar um pedido:**
 
 OBS1: O sabor só pode ser um dos sitados no comando, caso esteja vazio ou diferente será retornado erro.
 
@@ -44,7 +54,7 @@ OBS2: No comando alterar, ip do temporal server, NOME, ENDEREÇO e SABOR. Caso t
 docker run --rm -it --entrypoint tctl --network host --env TEMPORAL_CLI_ADDRESS="ipdotemporalserver":7233 temporalio/admin-tools:1.14.0 --namespace pizzahut workflow signal --workflow_id "PizzahutWorkflow-workflow" --name "new_order" --input '{\"name\": \"NOME\" , \"address\": \"ENDEREÇO\", \"flavor\": \"Calabresa,Frango ou Chocolate\"}'
 ```
 
-**6 - Após realizar o pedido voce pode consultar o status do pedido com o comando:**
+**7 - Após realizar o pedido voce pode consultar o status do pedido com o comando:**
 
 OBS: no input colocar o ID gerado na primeira ativiade. Voce pode pegar o id no temporal server.
 
