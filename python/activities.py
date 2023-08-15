@@ -4,6 +4,9 @@ import logging
 import time
 import os
 
+
+
+
 # Log config
 logger = logging.getLogger('pizzahut')
 logger.setLevel(logging.DEBUG)
@@ -27,7 +30,6 @@ def log(msg,level='info'):
         return logger.critical(msg)
 
 
-
 #General activities
 @activity.defn
 async def create_order(name, address, flavor):
@@ -37,7 +39,6 @@ async def create_order(name, address, flavor):
     if order % 2 == 0:
         arraydados = {"order": order, "name": name, "adress": address, "flavor": flavor, "status":"order_created"}
         log(arraydados)
-        time.sleep(int(os.environ['SLEEP']))
         return arraydados
     else:
         log("NUMBER ODD "+ str(order))
@@ -46,12 +47,16 @@ async def create_order(name, address, flavor):
 
 @activity.defn
 async def preparing_order(order, flavor):
+    order_id = order['order']
+    order['status'] = "preparing_order"
     time.sleep(int(os.environ['SLEEP']))
-    log(f"Your order number {order} ({flavor} pizza) has already been prepared!")
-    return  f"Your order number {order} ({flavor} pizza) has already been prepared!"
+    log(f"Your order number {order_id} ({flavor} pizza) has already been prepared!")
+    return  order
 
 @activity.defn
 async def leave_for_delivery(order):
+    order_id = order['order']
+    order['status'] = "out_of_delivery"
     time.sleep(int(os.environ['SLEEP']))
-    log(f"Your order number {order} is out for delivery!")
-    return f"Your order number {order} is out for delivery!"
+    log(f"Your order number {order_id} is out for delivery!")
+    return order

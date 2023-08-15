@@ -2,11 +2,12 @@ from temporalio import workflow
 from activities import *
 from datetime import timedelta
 from dataclasses import dataclass
-import asyncio 
-
+import time
+import asyncio
+import os
 
 @dataclass
-class Data():
+class Data:
     name    : str = ''
     address : str = ''
     flavor  : str = ''
@@ -37,17 +38,25 @@ class PizzahutWorkflow:
                 args = [self.order.name, self.order.address, self.order.flavor],
                 start_to_close_timeout=timedelta(seconds=60)
             )
-            await workflow.execute_activity(
+
+            log(f"Pedidos {order}")
+
+            order = await workflow.execute_activity(
                 preparing_order,
                 args = [order, self.order.flavor],
                 start_to_close_timeout=timedelta(seconds=60)
             )
-            await workflow.execute_activity(
+
+            log(f"Pedidos {order}")
+
+            order = await workflow.execute_activity(
                 leave_for_delivery,
                 order,
                 start_to_close_timeout=timedelta(seconds=60)
             )
-            log("Obrigado pelo seu pedido")
+
+            log(f"Pedidos {order}")
+            self.orders.append(order)
 
             self.order = Data()
             self._avarage_update.clear()
@@ -57,17 +66,51 @@ class PizzahutWorkflow:
     @workflow.signal
     async def new_order(self, data: Data) -> str:
         if data:
-            self.orders.append(data)
-            self.order.name = data.name
-            self.order.address = data.address
-            self.order.flavor = data.flavor
 
-            log(f"ORDER INSERTION {self.order}")
-            self._avarage_update.set()
+            if data.name and data.address not in {''}:
+                self.order.name = data.name
+                self.order.address = data.address
+            else:
+                log("A variável NAME ou ADDRESS não podem ser vazia")
+
+            if data.flavor not in {'Frango','Calabresa','Chocolate'}:
+                log("A variável FLAVOR deve ter um dos valores: 'Frango','Calabresa','Chocolate'")
+            else:
+                self.order.flavor = data.flavor
+        
+            if self.order.name and self.order.address and self.order.flavor not in {''}:
+                log(f"ORDER INSERTION {self.order}")
+                self._avarage_update.set()
+            else:
+                log("ORDER CANCELED DUE TO LACK OF DATA")
+
         else:
             log(f"ORDER INVALID {data}")
+
+    @workflow.signal
+    async def confirm_delivery(self, order_id):
+        if order_id:
+            for i in self.orders:
+                if order_id == i['order'] and i['status'] == 'out_of_delivery':
+                    i['status'] = "delivery"
+                    log("Out for delivery")
+                else:
+                    log("Order not ready for delivery yet")
+        else:
+            log("Inform order number")
+
+    @workflow.query
+    async def orders_list(self, comando):
+        if comando:
+            return self.orders
+        
     # Queries
     @workflow.query
-    async def get_order_status(self):
-        return self.order
-    
+    async def get_order_status(self, order_id) -> dict:
+        for i in self.orders:
+            if order_id == i['order']:
+                log("ID FOUND")
+                return i
+            else:
+                log("looking for number")
+        return {"status":"order not found"}

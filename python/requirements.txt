@@ -1,3 +1,2 @@
-pydantic
 temporalio
 asyncio
